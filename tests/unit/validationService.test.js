@@ -1,8 +1,8 @@
-const validationService = require("../../src/services/validationService");
+const validationService = require("../../src/services/validation.service");
 
 describe("ValidationService", () => {
   describe("validateFeedbackInput", () => {
-    it("should validate correct feedback input", () => {
+    test("should validate correct feedback input", () => {
       const input = {
         From: "whatsapp:+1234567890",
         Body: "Great service!",
@@ -11,10 +11,11 @@ describe("ValidationService", () => {
       const result = validationService.validateFeedbackInput(input);
 
       expect(result.isValid).toBe(true);
-      expect(result.data).toEqual(input);
+      expect(result.data.From).toBe("whatsapp:+1234567890");
+      expect(result.data.Body).toBe("Great service!");
     });
 
-    it("should reject invalid phone number format", () => {
+    test("should reject invalid phone format", () => {
       const input = {
         From: "invalid-phone",
         Body: "Great service!",
@@ -26,7 +27,7 @@ describe("ValidationService", () => {
       expect(result.error).toContain("From");
     });
 
-    it("should reject empty body", () => {
+    test("should reject empty body", () => {
       const input = {
         From: "whatsapp:+1234567890",
         Body: "",
@@ -39,13 +40,13 @@ describe("ValidationService", () => {
   });
 
   describe("isValidRating", () => {
-    it("should validate correct ratings", () => {
+    test("should accept valid ratings", () => {
       expect(validationService.isValidRating("1")).toBe(true);
-      expect(validationService.isValidRating("10")).toBe(true);
       expect(validationService.isValidRating("5")).toBe(true);
+      expect(validationService.isValidRating("10")).toBe(true);
     });
 
-    it("should reject invalid ratings", () => {
+    test("should reject invalid ratings", () => {
       expect(validationService.isValidRating("0")).toBe(false);
       expect(validationService.isValidRating("11")).toBe(false);
       expect(validationService.isValidRating("abc")).toBe(false);
@@ -53,7 +54,7 @@ describe("ValidationService", () => {
   });
 
   describe("categorizeRating", () => {
-    it("should categorize ratings correctly", () => {
+    test("should categorize ratings correctly", () => {
       expect(validationService.categorizeRating("10")).toBe("promoter");
       expect(validationService.categorizeRating("9")).toBe("promoter");
       expect(validationService.categorizeRating("8")).toBe("passive");

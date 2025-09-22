@@ -1,41 +1,41 @@
 const request = require("supertest");
 const express = require("express");
-const webhookRoutes = require("../../src/routes/webhook");
+const webhookRoutes = require("../../src/routes/webhook.routes");
+
+// Mock services for integration tests
+jest.mock("../../src/services/email.service");
+jest.mock("../../src/services/twilio.service");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api", webhookRoutes);
+app.use("/", webhookRoutes);
 
 describe("Webhook Integration Tests", () => {
-  describe("POST /api/whatsapp", () => {
-    it("should process webhook request", async () => {
-      const response = await request(app).post("/api/whatsapp").send({
-        From: "whatsapp:+1234567890",
-        Body: "Test feedback 8",
-      });
-
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("message");
+  test("POST /whatsapp should process webhook", async () => {
+    const response = await request(app).post("/whatsapp").send({
+      From: "whatsapp:+1234567890",
+      Body: "Great service! 9",
     });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("message");
   });
 
-  describe("GET /api/send-survey", () => {
-    it("should send survey to valid phone number", async () => {
-      const response = await request(app)
-        .get("/api/send-survey")
-        .query({ to: "+1234567890" });
+  test("GET /send-survey should send survey", async () => {
+    const response = await request(app)
+      .get("/send-survey")
+      .query({ to: "+1234567890" });
 
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("status", "success");
-    });
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("status", "success");
+  });
 
-    it("should reject invalid phone number", async () => {
-      const response = await request(app)
-        .get("/api/send-survey")
-        .query({ to: "invalid" });
+  test("should reject invalid phone number", async () => {
+    const response = await request(app)
+      .get("/send-survey")
+      .query({ to: "invalid" });
 
-      expect(response.status).toBe(400);
-    });
+    expect(response.status).toBe(400);
   });
 });
